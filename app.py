@@ -273,10 +273,10 @@ def create_persona():
     persona = {
         'id': pid,
         'name': name,
-        'description': payload.get('description', '').strip(),
-        'voice': payload.get('voice', '').strip(),
-        'tone': payload.get('tone', '').strip(),
-        'rules': payload.get('rules', '').strip()
+        'description': (payload.get('description') or '').strip(),
+        'voice': (payload.get('voice') or '').strip(),
+        'tone': (payload.get('tone') or '').strip(),
+        'rules': (payload.get('rules') or '').strip()
     }
     data.setdefault('personas', []).append(persona)
     # If no active persona, set this as active
@@ -294,8 +294,9 @@ def update_persona(pid):
     for p in data.get('personas', []):
         if p.get('id') == pid:
             for key in ['name', 'description', 'voice', 'tone', 'rules']:
-                if key in payload and isinstance(payload.get(key), str):
-                    p[key] = payload.get(key).strip()
+                if key in payload:
+                    val = payload.get(key)
+                    p[key] = (val.strip() if isinstance(val, str) else (val or ''))
             updated = p
             break
     if not updated:
