@@ -496,10 +496,19 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasText = elements.inputText.value.length > 0;
         const isHumanizing = elements.humanizeToggle.checked;
         const format = elements.formatSelect.value;
+        const text = elements.inputText.value.trim();
+        
+        // Check if this is a generation command
+        const { isGeneration, prompt } = isGenerationCommand(text);
         
         let buttonText = '✨ Scottify This!';
         
-        if (isHumanizing && state.hasStyleProfile) {
+        if (isGeneration) {
+            buttonText = '🚀 Generate Content';
+            if (format !== 'standard') {
+                buttonText = `🚀 Generate ${format.charAt(0).toUpperCase() + format.slice(1)}`;
+            }
+        } else if (isHumanizing && state.hasStyleProfile) {
             buttonText = '🎨 Scottify + Humanize';
         } else if (format !== 'standard') {
             buttonText = `📄 Scottify as ${format.charAt(0).toUpperCase() + format.slice(1)}`;
@@ -509,6 +518,23 @@ document.addEventListener('DOMContentLoaded', function() {
         elements.scottifyBtn.disabled = !hasText || state.isProcessing;
     }
 
+    // Helper function to check if text is a generation command
+    function isGenerationCommand(text) {
+        const trimmed = text.trim();
+        const prefixes = ['@gen ', '@generate ', '@Gen ', '@Generate '];
+        
+        for (const prefix of prefixes) {
+            if (trimmed.toLowerCase().startsWith(prefix.toLowerCase())) {
+                return {
+                    isGeneration: true,
+                    prompt: trimmed.substring(prefix.length).trim()
+                };
+            }
+        }
+        
+        return { isGeneration: false, prompt: '' };
+    }
+
     async function handleScottify() {
         const text = elements.inputText.value.trim();
         
@@ -516,6 +542,9 @@ document.addEventListener('DOMContentLoaded', function() {
             showStatus('Please enter some text to scottify! 🎵', 'error');
             return;
         }
+
+        // Check if this is a generation command
+        const { isGeneration, prompt } = isGenerationCommand(text);
 
         setProcessingState(true);
 
@@ -537,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (response.ok && data.success) {
                 // Show the formatted result
-                elements.outputText.value = data.formatted || data.humanized || data.cleaned;
+                elements.outputText.value = data.formatted || data.generated || data.humanized || data.cleaned;
                 
                 // Save to recent activity
                 saveToRecent(data);
@@ -549,27 +578,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 const personaName = data.persona_name || (data.persona_used ? (state.personas.find(p => p.id === data.persona_used)?.name || 'Active') : null);
 
                 // Build and display change summary
-                renderChangeSummary(data.original, elements.outputText.value, {
-                    humanized: data.humanization_applied,
-                    engine: data.humanization_engine,
-                    format: data.format,
-                    persona: personaName ? { name: personaName } : null
-                });
-                
-                // Show success message
-                const reductionPercent = calculateReduction(data.original, data.cleaned);
-                let message = `🎉 Text successfully Scottified!`;
-                
-                if (reductionPercent > 0) {
-                    message += ` Removed ${reductionPercent}% AI content.`;
+                if (data.is_generation) {
+                    // For generation, show different summary
+                    renderGenerationSummary(data.prompt || prompt, elements.outputText.value, {
+                        engine: data.generation_engine,
+                        format: data.format,
+                        persona: personaName ? { name: personaName } : null,
+                        style_summary: data.style_summary
+                    });
+                } else {
+                    // For transformation, show regular summary
+                    renderChangeSummary(data.original, elements.outputText.value, {
+                        humanized: data.humanization_applied,
+                        engine: data.humanization_engine,
+                        format: data.format,
+                        persona: personaName ? { name: personaName } : null,
+                        style_summary: data.style_summary
+                    });
                 }
                 
-                if (data.humanization_applied) {
-                    message += ` 🎨 Humanized to match your style.`;
-                    if (data.humanization_engine) {
-                        message += data.humanization_engine === 'ollama'
-                            ? ` 🤖 Powered by local Ollama.`
-                            : ` 🧩 Using on-device heuristic.`;
+                // Show success message
+                let message;
+                if (data.is_generation) {
+                    message = `🎉 Content generated successfully!`;
+                    if (data.generation_engine === 'ollama') {
+                        message += ` 🤖 Powered by local Ollama.`;
+                    }
+                } else {
+                    const reductionPercent = calculateReduction(data.original, data.cleaned);
+                    message = `🎉 Text successfully Scottified!`;
+                    
+                    if (reductionPercent > 0) {
+                        message += ` Removed ${reductionPercent}% AI content.`;
+                    }
+                    
+                    if (data.humanization_applied) {
+                        message += ` 🎨 Humanized to match your style.`;
+                        if (data.humanization_engine) {
+                            message += data.humanization_engine === 'ollama'
+                                ? ` 🤖 Powered by local Ollama.`
+                                : ` 🧩 Using on-device heuristic.`;
+                        }
                     }
                 }
                 
@@ -587,7 +636,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 animateOutput();
                 
             } else {
-                throw new Error(data.error || 'Unknown error occurred');
+                if (data.is_generation && data.fallback_message) {
+                    showStatus(`❌ Generation failed: ${data.fallback_message}`, 'error');
+                } else {
+                    throw new Error(data.error || 'Unknown error occurred');
+                }
             }
         } catch (error) {
             showStatus(`❌ Scottify failed: ${error.message}`, 'error');
@@ -673,6 +726,33 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const bullets = [];
         bullets.push(`<li><strong>Tokens +/-:</strong> ${summary.totalDelta}</li>`);
+        
+        // Add style/voice summary for humanized content
+        if (meta?.humanized && meta?.style_summary) {
+            const style = meta.style_summary;
+            const styleDetails = [];
+            
+            if (style.avg_sentence_length) {
+                styleDetails.push(`${Math.round(style.avg_sentence_length)} word sentences`);
+            }
+            
+            if (style.vocab_complexity) {
+                const complexity = style.vocab_complexity < 4.5 ? 'Simple' : 
+                                 style.vocab_complexity < 5.5 ? 'Moderate' : 'Complex';
+                styleDetails.push(`${complexity.toLowerCase()} vocabulary`);
+            }
+            
+            if (style.contractions_rate) {
+                const contractionsLevel = style.contractions_rate < 2 ? 'formal tone' :
+                                        style.contractions_rate < 5 ? 'semi-formal tone' : 'casual tone';
+                styleDetails.push(contractionsLevel);
+            }
+            
+            if (styleDetails.length > 0) {
+                bullets.push(`<li><strong>Style Applied:</strong> ${styleDetails.join(', ')}</li>`);
+            }
+        }
+        
         if (meta?.humanized) {
             const engineText = meta.engine === 'ollama' ? 'Local LLM (Ollama)' : 'Heuristic humanizer';
             bullets.push(`<li><strong>Humanization:</strong> ${engineText}</li>`);
@@ -695,6 +775,77 @@ document.addEventListener('DOMContentLoaded', function() {
         pane.classList.remove('hidden');
     }
 
+    function renderGenerationSummary(prompt, generatedText, meta) {
+        const pane = document.getElementById('change-summary');
+        if (!pane) return;
+
+        const wordCount = generatedText.trim().split(/\s+/).length;
+        const charCount = generatedText.length;
+        
+        const bullets = [];
+        bullets.push(`<li><strong>Prompt:</strong> "${prompt}"</li>`);
+        bullets.push(`<li><strong>Generated:</strong> ${wordCount} words, ${charCount} characters</li>`);
+        
+        if (meta?.engine) {
+            const engineText = meta.engine === 'ollama' ? 'Local LLM (Ollama)' : 'Fallback engine';
+            bullets.push(`<li><strong>Engine:</strong> ${engineText}</li>`);
+        }
+        
+        // Add style/voice summary
+        if (meta?.style_summary) {
+            const style = meta.style_summary;
+            const styleDetails = [];
+            
+            if (style.avg_sentence_length) {
+                styleDetails.push(`${Math.round(style.avg_sentence_length)} word sentences`);
+            }
+            
+            if (style.vocab_complexity) {
+                const complexity = style.vocab_complexity < 4.5 ? 'Simple' : 
+                                 style.vocab_complexity < 5.5 ? 'Moderate' : 'Complex';
+                styleDetails.push(`${complexity.toLowerCase()} vocabulary`);
+            }
+            
+            if (style.contractions_rate) {
+                const contractionsLevel = style.contractions_rate < 2 ? 'formal tone' :
+                                        style.contractions_rate < 5 ? 'semi-formal tone' : 'casual tone';
+                styleDetails.push(contractionsLevel);
+            }
+            
+            if (styleDetails.length > 0) {
+                bullets.push(`<li><strong>Style Applied:</strong> ${styleDetails.join(', ')}</li>`);
+            }
+        }
+        
+        if (meta?.persona) {
+            const personaName = typeof meta.persona === 'object' ? (meta.persona.name || 'Active') : 'Active';
+            let personaInfo = personaName;
+            
+            // Add persona voice/tone details if available from the active persona
+            if (state.activePersonaId && state.personas) {
+                const activePersona = state.personas.find(p => p.id === state.activePersonaId);
+                if (activePersona) {
+                    const voiceDetails = [];
+                    if (activePersona.voice) voiceDetails.push(`Voice: ${activePersona.voice.substring(0, 50)}${activePersona.voice.length > 50 ? '...' : ''}`);
+                    if (activePersona.tone) voiceDetails.push(`Tone: ${activePersona.tone.substring(0, 50)}${activePersona.tone.length > 50 ? '...' : ''}`);
+                    
+                    if (voiceDetails.length > 0) {
+                        personaInfo += ` (${voiceDetails.join(', ')})`;
+                    }
+                }
+            }
+            
+            bullets.push(`<li><strong>Persona:</strong> ${personaInfo}</li>`);
+        }
+        
+        if (meta?.format && meta.format !== 'standard') {
+            bullets.push(`<li><strong>Format:</strong> ${meta.format}</li>`);
+        }
+
+        pane.innerHTML = `<h4>Generation Summary</h4><ul>${bullets.join('')}</ul>`;
+        pane.classList.remove('hidden');
+    }
+
     function handleClear() {
         elements.inputText.value = '';
         elements.outputText.value = '';
@@ -711,6 +862,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function handleTrySample() {
         const sampleTexts = [
+            // Generation samples
+            `@gen A LinkedIn post about the rise of AI detailing how data is critical`,
+            
+            `@generate A brief email to the team about our new remote work policy, keep it casual and friendly`,
+            
+            `@Gen Create meeting notes for a product planning session covering Q1 priorities and budget allocation`,
+            
+            // Traditional cleaning samples
             `As an AI language model, I'd be happy to help you understand the revolutionary impact of artificial intelligence on modern business operations.
 
 AI technologies can significantly enhance operational efficiency and productivity across various industries. Organizations should consider utilizing machine learning algorithms to optimize their data processing capabilities and streamline decision-making processes.
@@ -743,7 +902,13 @@ I should mention that energy transition strategies should be tailored to specifi
         // Animate the input area
         animateInput();
         
-        showStatus('📝 Sample text loaded! Try Scottifying it.', 'info');
+        // Check if it's a generation sample
+        const { isGeneration } = isGenerationCommand(randomSample);
+        const message = isGeneration 
+            ? '🚀 Generation sample loaded! Try generating content.'
+            : '📝 Sample text loaded! Try Scottifying it.';
+        
+        showStatus(message, 'info');
     }
 
     async function handleCopy() {
