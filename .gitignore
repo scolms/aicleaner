@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+.env/
+
+# Local data
+user_style_profile.json
+personas.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python packaging
+build/
+dist/
+.eggs/
+*.egg-info/
+
+# IDE/editor
+.vscode/
+*.code-workspace
+
+# Logs
+*.log

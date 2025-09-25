@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scottify - AI Text Humanizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/scottify.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Circular:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">🎵</span>
+                    <span class="logo-text">Scottify</span>
+                </div>
+                <p class="tagline">Transform AI → Human</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <h3>Your Library</h3>
+                    <ul>
+                        <li class="nav-item active">
+                            <span class="nav-icon"></span>
+                            <span>Home</span>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-icon"></span>
+                            <span>Your Style</span>
+                        </li>
+                        <li class="nav-item">
+                            <span class="nav-icon"></span>
+                            <span>Analytics</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="nav-section">
+                    <h3>Recent</h3>
+                    <ul class="recent-items">
+                        <li class="recent-item">
+                            <span class="recent-icon"></span>
+                            <span>LinkedIn Article</span>
+                        </li>
+                        <li class="recent-item">
+                            <span class="recent-icon"></span>
+                            <span>Meeting Notes</span>
+                        </li>
+                        <li class="recent-item">
+                            <span class="recent-icon"></span>
+                            <span>Word Document</span>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">S</div>
+                    <div class="user-info">
+                        <span class="username">Scott Colebourn</span>
+                        <span class="user-type">Premium</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-nav">
+                    <button class="nav-btn prev" disabled>❮</button>
+                    <button class="nav-btn next" disabled>❯</button>
+                </div>
+                
+                <div class="search-bar">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" placeholder="Search for AI patterns, styles, or formats...">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="action-btn">🔔</button>
+                    <button class="action-btn">⚙️</button>
+                </div>
+            </header>
+
+            <!-- Hero Section -->
+            <section class="hero-section">
+                <div class="hero-banner">
+                    <div class="hero-photo-panel">
+                        <div class="photo-container" style="background-image: url('{{ url_for('static', filename='images/scott-photo.jpg') }}?v=20250922'); background-size: cover; background-position: center;">
+                            <img 
+                                class="scott-photo-img" 
+                                src="{{ url_for('static', filename='images/scott-photo.jpg') }}?v=20250922" 
+                                alt="Scott Colebourn" 
+                                loading="eager"
+                                decoding="async"
+                                onerror="this.onerror=null; this.src='{{ url_for('static', filename='images/scott.jpg') }}?v=20250922'"
+                            />
+                            <div class="photo-overlay">
+                                <div class="overlay-content">
+                                    <span class="photo-name">Scott Colebourn</span>
+                                    <span class="photo-role">Human Writer 👨‍💻</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    
+                    <div class="hero-content">
+                        <div class="hero-badge">
+                            <span class="badge-icon">🤖</span>
+                            <span>AI's Voice → My Style</span>
+                        </div>
+                        
+                        <h1 class="hero-title">
+                            Stop Writing Like a
+                            <span class="gradient-text">Robot!</span>
+                            <span class="hero-subtitle-text">Make It Sound Like a Grumpy Middle Aged Northerner</span>
+                        </h1>
+                        
+                        <p class="hero-description">
+                            Tired of AI making you sound like everyone else? 😴 Scottify takes that 
+                            <strong>robotic nonsense</strong> and transforms it into content that actually 
+                            sounds like a human wrote it. Your words, my voice.
+                        </p>
+                        
+                        <div class="hero-tagline">
+                            <span class="tagline-icon">💫</span>
+                            <span class="tagline-text">"Why sound like a machine when you can sound like me"</span>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+                
+                
+            </section>
+
+            <!-- Style Profile Card -->
+            <section class="style-profile-card card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="card-icon">🎨</span>
+                        <h2>Your Writing DNA</h2>
+                    </div>
+                    <div class="header-actions" style="gap: 8px;">
+                        <button id="manage-personas" class="btn-secondary">Personas</button>
+                        <button id="toggle-style" class="btn-secondary">Setup Profile</button>
+                    </div>
+                </div>
+                
+                <div id="style-setup" class="style-setup hidden">
+                    <div class="style-analyzer">
+                        <h3>Analyze Your Writing Style</h3>
+                        <p>Upload a sample of your writing to create your personalized voice profile</p>
+                        
+                        <div class="upload-area">
+                            <textarea 
+                                id="writing-sample" 
+                                placeholder="Paste your writing sample here... (emails, articles, posts, etc.)"
+                                rows="6"></textarea>
+                            <div class="upload-info">
+                                <span id="sample-count" class="char-count">0 characters</span>
+                                <span class="upload-tip">💡 Tip: Use 500+ characters for best results</span>
+                            </div>
+                        </div>
+                        
+                        <button id="analyze-style" class="btn-primary" disabled>
+                            <span class="btn-icon">🔬</span>
+                            Analyze My Style
+                        </button>
+                    </div>
+                    
+                    <div id="style-profile" class="style-results hidden">
+                        <h3>Your Style Profile</h3>
+                        <div class="profile-grid" id="profile-stats"></div>
+                    </div>
+                </div>
+
+                <!-- Personas Manager -->
+                <div id="personas-panel" class="style-setup hidden">
+                    <div class="style-analyzer">
+                        <h3>Style Personas</h3>
+                        <p>Create, edit, and activate personas to guide Scottify's tone and voice.</p>
+
+                        <div class="upload-area">
+                            <input id="persona-name" placeholder="Persona name (e.g., 'Direct Scott', 'Storyteller')" />
+                            <textarea id="persona-description" placeholder="Description (what’s this persona about?)" rows="3"></textarea>
+                            <textarea id="persona-voice" placeholder="Voice guidelines (phrasing, cadence, vocabulary)" rows="3"></textarea>
+                            <textarea id="persona-tone" placeholder="Tone guidelines (confident, playful, empathetic, etc.)" rows="2"></textarea>
+                            <textarea id="persona-rules" placeholder="Rules (do/don’t, signature moves, call‑to‑action style)" rows="3"></textarea>
+                            <div style="display:flex; gap:8px; margin-top:8px;">
+                                <button id="save-persona" class="btn-primary">Save Persona</button>
+                                <button id="clear-persona" class="btn-ghost">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="style-results">
+                        <h3>Your Personas</h3>
+                        <div id="personas-list" class="profile-grid"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Text Processor Section -->
+            <section class="processor-section">
+                <div class="processor-grid">
+                    <!-- Input Card -->
+                    <div class="processor-card input-card card">
+                        <div class="card-header">
+                            <h3>
+                                <span class="card-icon">📝</span>
+                                Input Text
+                            </h3>
+                            <span id="input-count" class="char-count">0 characters</span>
+                        </div>
+                        
+                        <div class="text-input-area">
+                            <textarea 
+                                id="input-text" 
+                                placeholder="Paste your AI-generated text here and watch the magic happen..."
+                                rows="12"></textarea>
+                        </div>
+                        
+                        <div class="input-controls">
+                            <div class="format-selector">
+                                <label>Output Format:</label>
+                                <select id="format-select" class="format-dropdown">
+                                    <option value="standard">Standard</option>
+                                    <option value="linkedin">LinkedIn Article</option>
+                                    <option value="word">Word Document</option>
+                                    <option value="notes">Quick Notes</option>
+                                </select>
+                            </div>
+                            
+                            <div class="toggle-group">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="humanize-toggle" disabled>
+                                    <span class="toggle-slider"></span>
+                                    <span class="toggle-label">Scottify Style</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button id="clear-input" class="btn-ghost">Clear</button>
+                            <button id="try-sample" class="btn-secondary">Try Sample</button>
+                            <button id="scottify-btn" class="btn-primary">
+                                <span class="btn-icon">✨</span>
+                                Scottify This!
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Output Card -->
+                    <div class="processor-card output-card card">
+                        <div class="card-header">
+                            <h3>
+                                <span class="card-icon">🎯</span>
+                                Scottified Text
+                            </h3>
+                            <div class="output-actions">
+                                <span id="output-count" class="char-count">0 characters</span>
+                                <button id="copy-output" class="btn-secondary" disabled>
+                                    <span class="btn-icon">📋</span>
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-output-area">
+                            <textarea 
+                                id="output-text" 
+                                placeholder="Your Scottified, formatted text will appear here..."
+                                rows="12" 
+                                readonly></textarea>
+                        </div>
+                        
+                        <div id="processing-status" class="status-display"></div>
+                        
+                        <div class="output-info">
+                            <div class="transformation-stats hidden" id="transform-stats">
+                                <div class="stat-pill">
+                                    <span class="stat-label">AI Removed:</span>
+                                    <span id="ai-removed" class="stat-value">0%</span>
+                                </div>
+                                <div class="stat-pill">
+                                    <span class="stat-label">Format:</span>
+                                    <span id="applied-format" class="stat-value">Standard</span>
+                                </div>
+                                <div class="stat-pill">
+                                    <span class="stat-label">Humanized:</span>
+                                    <span id="humanized-status" class="stat-value">No</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Change Summary Pane -->
+                        <div id="change-summary" class="change-summary hidden"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features Grid -->
+            <section class="features-section">
+                <h2 class="section-title">Why Choose Scottify?</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🚫</div>
+                        <h3>AI Watermark Removal</h3>
+                        <p>Automatically detects and removes "As an AI", disclaimers, and other AI-generated markers</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Style Matching</h3>
+                        <p>Transforms text to match your unique writing voice, tone, and vocabulary preferences</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">📄</div>
+                        <h3>Format Templates</h3>
+                        <p>Choose from LinkedIn articles, Word documents, notes, and more formatting options</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Lightning Fast</h3>
+                        <p>Process thousands of words in seconds with our optimized AI processing pipeline</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+            <div class="spinner-ring"></div>
+        </div>
+        <p class="loading-text">Scottifying your text...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/scottify.js') }}"></script>
+</body>
+</html>
