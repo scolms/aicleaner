@@ -200,14 +200,12 @@ document.addEventListener('DOMContentLoaded', function() {
             analyticsSection.innerHTML = `
                 <div class="card-header">
                     <h2>
-                        <span class="card-icon">🎨</span>
                         Style Analytics
                     </h2>
                 </div>
                 <div class="analytics-content">
                     <div class="analytics-grid">
                         <div class="analytics-card">
-                            <div class="analytics-icon">📊</div>
                             <h3>Writing Patterns</h3>
                             <p>Analyze your unique writing style with detailed breakdowns of sentence structure, vocabulary usage, and tone patterns.</p>
                             <div class="progress-bar">
@@ -217,7 +215,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <div class="analytics-card">
-                            <div class="analytics-icon">🎯</div>
                             <h3>Accuracy Score</h3>
                             <p>How well our humanization matches your personal writing voice and style preferences.</p>
                             <div class="score-display">
@@ -227,7 +224,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         
                         <div class="analytics-card">
-                            <div class="analytics-icon">📈</div>
                             <h3>Usage Statistics</h3>
                             <p>Track your text processing history and see improvements in your content quality over time.</p>
                             <div class="usage-stats">
@@ -340,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Focus on input
         elements.inputText.focus();
         
-        showStatus(`📄 Ready to create ${formatText}! Paste your text and Scottify it.`, 'info');
+        showStatus(`Ready to create ${formatText}! Paste your text and Scottify it.`, 'info');
         
         // Animate the recent item selection
         animateRecentSelection(recentItem);
@@ -501,20 +497,20 @@ document.addEventListener('DOMContentLoaded', function() {
         // Check if this is a generation command
         const { isGeneration, prompt } = isGenerationCommand(text);
         
-        let buttonText = '✨ Scottify This!';
+        let buttonText = 'Scottify This!';
         
         if (isGeneration) {
-            buttonText = '🚀 Generate Content';
+            buttonText = 'Generate Content';
             if (format !== 'standard') {
-                buttonText = `🚀 Generate ${format.charAt(0).toUpperCase() + format.slice(1)}`;
+                buttonText = `Generate ${format.charAt(0).toUpperCase() + format.slice(1)}`;
             }
         } else if (isHumanizing && state.hasStyleProfile) {
-            buttonText = '🎨 Scottify + Humanize';
+            buttonText = 'Scottify + Humanize';
         } else if (format !== 'standard') {
-            buttonText = `📄 Scottify as ${format.charAt(0).toUpperCase() + format.slice(1)}`;
+            buttonText = `Scottify as ${format.charAt(0).toUpperCase() + format.slice(1)}`;
         }
         
-        elements.scottifyBtn.innerHTML = `<span class="btn-icon">${buttonText.split(' ')[0]}</span> ${buttonText.substring(2)}`;
+        elements.scottifyBtn.textContent = buttonText;
         elements.scottifyBtn.disabled = !hasText || state.isProcessing;
     }
 
@@ -539,7 +535,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const text = elements.inputText.value.trim();
         
         if (!text) {
-            showStatus('Please enter some text to scottify! 🎵', 'error');
+            showStatus('Please enter some text to scottify!', 'error');
             return;
         }
 
@@ -600,33 +596,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show success message
                 let message;
                 if (data.is_generation) {
-                    message = `🎉 Content generated successfully!`;
+                    message = `Content generated successfully!`;
                     if (data.generation_engine === 'ollama') {
-                        message += ` 🤖 Powered by local Ollama.`;
+                        message += ` Powered by local Ollama.`;
                     }
                 } else {
                     const reductionPercent = calculateReduction(data.original, data.cleaned);
-                    message = `🎉 Text successfully Scottified!`;
+                    message = `Text successfully Scottified!`;
                     
                     if (reductionPercent > 0) {
                         message += ` Removed ${reductionPercent}% AI content.`;
                     }
                     
                     if (data.humanization_applied) {
-                        message += ` 🎨 Humanized to match your style.`;
+                        message += ` Humanized to match your style.`;
                         if (data.humanization_engine) {
                             message += data.humanization_engine === 'ollama'
-                                ? ` 🤖 Powered by local Ollama.`
-                                : ` 🧩 Using on-device heuristic.`;
+                                ? ` Powered by local Ollama.`
+                                : ` Using on-device heuristic.`;
                         }
                     }
                 }
                 
                 if (data.format !== 'standard') {
-                    message += ` 📄 Formatted as ${data.format}.`;
+                    message += ` Formatted as ${data.format}.`;
                 }
                 if (personaName) {
-                    message += ` 🧑‍🎤 Persona: ${personaName}.`;
+                    message += ` Persona: ${personaName}.`;
                 }
                 
                 showStatus(message, 'success');
@@ -637,13 +633,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
             } else {
                 if (data.is_generation && data.fallback_message) {
-                    showStatus(`❌ Generation failed: ${data.fallback_message}`, 'error');
+                    showStatus(`Generation failed: ${data.fallback_message}`, 'error');
                 } else {
                     throw new Error(data.error || 'Unknown error occurred');
                 }
             }
         } catch (error) {
-            showStatus(`❌ Scottify failed: ${error.message}`, 'error');
+            showStatus(`Scottify failed: ${error.message}`, 'error');
             console.error('Scottify error:', error);
         } finally {
             setProcessingState(false);
@@ -905,8 +901,8 @@ I should mention that energy transition strategies should be tailored to specifi
         // Check if it's a generation sample
         const { isGeneration } = isGenerationCommand(randomSample);
         const message = isGeneration 
-            ? '🚀 Generation sample loaded! Try generating content.'
-            : '📝 Sample text loaded! Try Scottifying it.';
+            ? 'Generation sample loaded! Try generating content.'
+            : 'Sample text loaded! Try Scottifying it.';
         
         showStatus(message, 'info');
     }
@@ -917,7 +913,7 @@ I should mention that energy transition strategies should be tailored to specifi
             
             // Visual feedback
             const originalIcon = elements.copyBtn.innerHTML;
-            elements.copyBtn.innerHTML = '<span class="btn-icon">✅</span> Copied!';
+            elements.copyBtn.textContent = 'Copied!';
             elements.copyBtn.classList.add('btn-primary');
             
             setTimeout(() => {
@@ -963,7 +959,7 @@ I should mention that energy transition strategies should be tailored to specifi
                 elements.humanizeToggle.disabled = false;
                 elements.toggleStyleBtn.textContent = 'View Style Profile';
                 
-                showStatus(`🎨 ${data.message} You can now use Scottify Style!`, 'success');
+                showStatus(`${data.message} You can now use Scottify Style!`, 'success');
                 updateScottifyButton();
                 
                 // Animate profile appearance
@@ -973,7 +969,7 @@ I should mention that energy transition strategies should be tailored to specifi
                 throw new Error(data.error || 'Failed to analyze writing style');
             }
         } catch (error) {
-            showStatus(`❌ Style analysis failed: ${error.message}`, 'error');
+            showStatus(`Style analysis failed: ${error.message}`, 'error');
             console.error('Style analysis error:', error);
         } finally {
             setProcessingState(false);
@@ -1226,7 +1222,7 @@ I should mention that energy transition strategies should be tailored to specifi
 
     function activatePartyMode() {
         document.body.style.animation = 'rainbow 2s infinite';
-        showStatus('🎉 PARTY MODE ACTIVATED! You found the secret! 🎵', 'success');
+        showStatus('PARTY MODE ACTIVATED! You found the secret!', 'success');
         
         setTimeout(() => {
             document.body.style.animation = '';
@@ -1311,10 +1307,10 @@ I should mention that energy transition strategies should be tailored to specifi
             if (!data.success) throw new Error(data.error || 'Failed to save persona');
             clearPersonaForm();
             await loadPersonas();
-            showStatus('✅ Persona saved', 'success');
+            showStatus('Persona saved', 'success');
         } catch (err) {
             console.error('save persona error', err);
-            showStatus(`❌ ${err.message}`, 'error');
+            showStatus(`${err.message}`, 'error');
         }
     }
 
@@ -1328,7 +1324,7 @@ I should mention that energy transition strategies should be tailored to specifi
             showStatus('🎙️ Persona activated', 'success');
         } catch (err) {
             console.error('activate persona error', err);
-            showStatus(`❌ ${err.message}`, 'error');
+            showStatus(`${err.message}`, 'error');
         }
     }
 
@@ -1343,7 +1339,7 @@ I should mention that energy transition strategies should be tailored to specifi
             showStatus('🗑️ Persona deleted', 'success');
         } catch (err) {
             console.error('delete persona error', err);
-            showStatus(`❌ ${err.message}`, 'error');
+            showStatus(`${err.message}`, 'error');
         }
     }
 

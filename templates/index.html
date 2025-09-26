@@ -6,7 +6,7 @@
     <title>Scottify - AI Text Humanizer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/scottify.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Circular:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='40' fill='%23007BFF'/><text x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-family='Arial'>S</text></svg>">
 </head>
 <body>
     <div class="app-container">
@@ -14,7 +14,6 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <span class="logo-icon">🎵</span>
                     <span class="logo-text">Scottify</span>
                 </div>
                 <p class="tagline">Transform AI → Human</p>
@@ -74,18 +73,17 @@
             <!-- Top Header -->
             <header class="top-header">
                 <div class="header-nav">
-                    <button class="nav-btn prev" disabled>❮</button>
-                    <button class="nav-btn next" disabled>❯</button>
+                    <button class="nav-btn prev" disabled>‹</button>
+                    <button class="nav-btn next" disabled>›</button>
                 </div>
                 
                 <div class="search-bar">
-                    <span class="search-icon">🔍</span>
                     <input type="text" placeholder="Search for AI patterns, styles, or formats...">
                 </div>
                 
                 <div class="header-actions">
-                    <button class="action-btn">🔔</button>
-                    <button class="action-btn">⚙️</button>
+                    <button class="action-btn">Notifications</button>
+                    <button class="action-btn">Settings</button>
                 </div>
             </header>
 
@@ -114,7 +112,6 @@
                     
                     <div class="hero-content">
                         <div class="hero-badge">
-                            <span class="badge-icon">🤖</span>
                             <span>AI's Voice → My Style</span>
                         </div>
                         
@@ -131,7 +128,6 @@
                         </p>
                         
                         <div class="hero-tagline">
-                            <span class="tagline-icon">💫</span>
                             <span class="tagline-text">"Why sound like a machine when you can sound like me"</span>
                         </div>
                         
@@ -146,7 +142,6 @@
             <section class="style-profile-card card">
                 <div class="card-header">
                     <div class="card-title">
-                        <span class="card-icon">🎨</span>
                         <h2>Your Writing DNA</h2>
                     </div>
                     <div class="header-actions" style="gap: 8px;">
@@ -167,12 +162,11 @@
                                 rows="6"></textarea>
                             <div class="upload-info">
                                 <span id="sample-count" class="char-count">0 characters</span>
-                                <span class="upload-tip">💡 Tip: Use 500+ characters for best results</span>
+                                <span class="upload-tip">Tip: Use 500+ characters for best results</span>
                             </div>
                         </div>
                         
                         <button id="analyze-style" class="btn-primary" disabled>
-                            <span class="btn-icon">🔬</span>
                             Analyze My Style
                         </button>
                     </div>
@@ -216,7 +210,6 @@
                     <div class="processor-card input-card card">
                         <div class="card-header">
                             <h3>
-                                <span class="card-icon">📝</span>
                                 Input Text
                             </h3>
                             <span id="input-count" class="char-count">0 characters</span>
@@ -230,7 +223,7 @@
                         </div>
                         
                         <div class="input-tip" style="padding: 8px 0; font-size: 0.85em; color: #888; font-style: italic;">
-                            💡 <strong>New:</strong> Type <code>@gen</code>, <code>@generate</code>, <code>@Gen</code>, or <code>@Generate</code> followed by your request to create new content instead of cleaning existing text.
+                            <strong>New:</strong> Type <code>@gen</code>, <code>@generate</code>, <code>@Gen</code>, or <code>@Generate</code> followed by your request to create new content instead of cleaning existing text.
                         </div>
                         
                         <div class="input-controls">
@@ -257,7 +250,6 @@
                             <button id="clear-input" class="btn-ghost">Clear</button>
                             <button id="try-sample" class="btn-secondary">Try Sample</button>
                             <button id="scottify-btn" class="btn-primary">
-                                <span class="btn-icon">✨</span>
                                 Scottify This!
                             </button>
                         </div>
@@ -267,13 +259,11 @@
                     <div class="processor-card output-card card">
                         <div class="card-header">
                             <h3>
-                                <span class="card-icon">🎯</span>
                                 Scottified Text
                             </h3>
                             <div class="output-actions">
                                 <span id="output-count" class="char-count">0 characters</span>
                                 <button id="copy-output" class="btn-secondary" disabled>
-                                    <span class="btn-icon">📋</span>
                                     Copy
                                 </button>
                             </div>
@@ -317,25 +307,21 @@
                 <h2 class="section-title">Why Choose Scottify?</h2>
                 <div class="features-grid">
                     <div class="feature-card">
-                        <div class="feature-icon">🚫</div>
                         <h3>AI Watermark Removal</h3>
                         <p>Automatically detects and removes "As an AI", disclaimers, and other AI-generated markers</p>
                     </div>
                     
                     <div class="feature-card">
-                        <div class="feature-icon">🎨</div>
                         <h3>Style Matching</h3>
                         <p>Transforms text to match your unique writing voice, tone, and vocabulary preferences</p>
                     </div>
                     
                     <div class="feature-card">
-                        <div class="feature-icon">📄</div>
                         <h3>Format Templates</h3>
                         <p>Choose from LinkedIn articles, Word documents, notes, and more formatting options</p>
                     </div>
                     
                     <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
                         <h3>Lightning Fast</h3>
                         <p>Process thousands of words in seconds with our optimized AI processing pipeline</p>
                     </div>
